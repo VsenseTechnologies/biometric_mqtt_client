@@ -42,7 +42,7 @@ impl RedisService {
 
         let json_name=&self.delete_json_name;
         let command="JSON.GET";
-        let json_arr_path=format!("$.{}[0]",unit_id);
+        let json_arr_path=format!("$.{}[0]",unit_id.to_uppercase());
         let arguements=[json_name,&json_arr_path];
 
         let mut redis_client=self.client.lock().await;
@@ -58,7 +58,7 @@ impl RedisService {
 
         let command="JSON.GET";
         
-        let json_arr_path=format!("$.{}[0]",unit_id);
+        let json_arr_path=format!("$.{}[0]",unit_id.to_uppercase());
 
         let arguements=[json_name,&json_arr_path];
 
@@ -75,7 +75,7 @@ impl RedisService {
 
         let command="JSON.DEL";
 
-        let json_arr_path=format!("$.{}[0]",unit_id);
+        let json_arr_path=format!("$.{}[0]",unit_id.to_uppercase());
 
         let arguements=[json_name,&json_arr_path];
 
@@ -92,7 +92,7 @@ impl RedisService {
 
         let command="JSON.DEL";
 
-        let json_arr_path=format!("$.{}[0]",unit_id);
+        let json_arr_path=format!("$.{}[0]",unit_id.to_uppercase());
 
         let arguements=[json_name,&json_arr_path];
 
