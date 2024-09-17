@@ -14,6 +14,6 @@ pub struct UnitDisconnectedRequest {
 
 #[derive(Debug,Deserialize)]
 pub struct InsertedNewStudent {
-    pub student_unit_id:u32,
+    pub student_unit_id:String,
     pub fingerprint_data:String
 }
