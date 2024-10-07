@@ -3,12 +3,12 @@ use serde::Deserialize;
 
 #[derive(Debug,Deserialize)]
 pub struct UnitConnectedRequest {
-    pub unit_id:String
+    pub uid:String
 }
 
 #[derive(Debug,Deserialize)]
 pub struct UnitDisconnectedRequest {
-    pub unit_id:String
+    pub uid:String
 }
 
 

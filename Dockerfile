@@ -50,9 +50,9 @@ ENV REDIS_URI=redis://127.0.0.1/
 
 ENV REDIS_ATTENDENCE_LIST_NAME=attendence_logs
 
-ENV REDIS_INSERT_JSON_NAME=inserts1
+ENV REDIS_INSERT_JSON_NAME=inserts
 
-ENV REDIS_DELETE_JSON_NAME=deletes1
+ENV REDIS_DELETE_JSON_NAME=deletes
 
 COPY --from=final_builder /app/target/release/vsense_biometric_mqtt_client .
 

@@ -1,7 +1,6 @@
 use serde_json::json;
 use tokio::sync::mpsc::Receiver;
 use rumqttc::{AsyncClient,QoS};
-use std::f64::consts::E;
 use std::sync::Arc;
 use log::error;
 
@@ -59,7 +58,7 @@ impl MessageHandler {
 
                                     if result.len() == 0 {
 
-                                        let mqtt_json_response=json!({"message_type":1,"error_status":0,"students_empty":1});
+                                        let mqtt_json_response=json!({"mty":"1","error_status":"0","ste":"1"});
 
                                         if let Ok(payload)=serde_json::to_vec(&mqtt_json_response) {
                                             let _=mqtt_client.publish(unit_subscribe_topic, QoS::AtLeastOnce, false, payload).await;
@@ -67,7 +66,7 @@ impl MessageHandler {
                                         
                                     }else{
 
-                                        let mqtt_json_response=json!({"message_type":1,"error_status":0,"students_empty":0,"student_id":result[0]});
+                                        let mqtt_json_response=json!({"mty":"1","est":"0","ste":"0","suid":result[0]});
 
                                         if let Ok(payload)=serde_json::to_vec(&mqtt_json_response) {
                                             let _=mqtt_client.publish(unit_subscribe_topic, QoS::AtLeastOnce, false, payload).await;
@@ -76,7 +75,7 @@ impl MessageHandler {
                                     }
                             }else{
 
-                                let mqtt_json_response=json!({"message_type":1,"error_status":1,"error_type":1});
+                                let mqtt_json_response=json!({"mty":"1","est":"1","ety":"0"});
 
                                 if let Ok(payload)=serde_json::to_vec(&mqtt_json_response) {
                                     let _=mqtt_client.publish(unit_subscribe_topic, QoS::AtLeastOnce, false, payload).await;
@@ -85,7 +84,7 @@ impl MessageHandler {
                                 error!("erorr occured while parsing the deletes response from redis -> {}",unit_subscribe_topic);
                             }
                         }else{
-                            let mqtt_josn_response=json!({"message_type":1,"error_status":1,"error_type":2});
+                            let mqtt_josn_response=json!({"mty":"1","est":"1","ety":"1"});
 
                             if let Ok(payload)=serde_json::to_vec(&mqtt_josn_response) {
                                 let _=mqtt_client.publish(unit_subscribe_topic, QoS::AtLeastOnce, false, payload).await;
@@ -102,14 +101,14 @@ impl MessageHandler {
 
                                 if result.len() == 0 {
                                     
-                                    let mqtt_json_response=json!({"message_type":2,"error_status":0,"students_empty":1});
+                                    let mqtt_json_response=json!({"mty":"2","est":"0","ste":"1"});
 
                                     if let Ok(payload)=serde_json::to_vec(&mqtt_json_response) {
                                         let _=mqtt_client.publish(unit_subscribe_topic, QoS::AtLeastOnce, false, payload).await;
                                     }
 
                                 }else{
-                                    let mqtt_json_response=json!({"message_type":2,"error_status":0,"students_empty":0,"student_unit_id":result[0].student_unit_id,"fingerprint_data":result[0].fingerprint_data});
+                                    let mqtt_json_response=json!({"mty":"2","est":"0","ste":"0","suid":result[0].student_unit_id,"fpd":result[0].fingerprint_data});
 
                                     if let Ok(payload)=serde_json::to_vec(&mqtt_json_response) {
                                         let _=mqtt_client.publish(unit_subscribe_topic, QoS::AtLeastOnce, false, payload).await;
@@ -117,7 +116,7 @@ impl MessageHandler {
                                 }
 
                             }else{
-                               let mqtt_json_response=json!({"message_type":2,"error_status":1,"error_type":1});
+                               let mqtt_json_response=json!({"mty":"2","est":"1","ety":"0"});
 
                                if let Ok(payload)=serde_json::to_vec(&mqtt_json_response) {
                                     let _=mqtt_client.publish(unit_subscribe_topic, QoS::AtLeastOnce, false, payload).await;
@@ -127,7 +126,7 @@ impl MessageHandler {
                             }
                         }else{
 
-                            let mqtt_json_response=json!({"message_type":2,"error_status":1,"error_type":2});
+                            let mqtt_json_response=json!({"mty":"2","est":"1","ety":"1"});
 
                             if let Ok(payload)=serde_json::to_vec(&mqtt_json_response) {
                                 let _=mqtt_client.publish(unit_subscribe_topic, QoS::AtLeastOnce, false, payload).await;
@@ -153,7 +152,7 @@ impl MessageHandler {
 
                             if let Ok(_)=redis_service.insert_attendence_log(message).await {
 
-                                let mqtt_json_response=json!({"message_type":3,"error_status":0});
+                                let mqtt_json_response=json!({"mty":"3","est":"0"});
     
                                 if let Ok(payload)=serde_json::to_vec(&mqtt_json_response) {
         
@@ -161,7 +160,7 @@ impl MessageHandler {
         
                                   }
                             }else{
-                                let mqtt_json_response=json!({"message_type":3,"error_status":1});
+                                let mqtt_json_response=json!({"mty":"3","est":"1","ety":"0"});
     
                                 if let Ok(payload)=serde_json::to_vec(&mqtt_json_response) {
         
@@ -174,12 +173,12 @@ impl MessageHandler {
                     "connected" => {
                         if let Ok(unit_connected_request) = serde_json::from_str::<UnitConnectedRequest>(&message) {
                             
-                            if let Ok(is_unit_valid)=db.check_unit_is_valid(unit_connected_request.unit_id.clone()).await {
+                            if let Ok(is_unit_valid)=db.check_unit_is_valid(unit_connected_request.uid.clone()).await {
                                 if is_unit_valid {
 
-                                    if let Ok(_) = db.update_unit_state(unit_connected_request.unit_id, true).await {
+                                    if let Ok(_) = db.update_unit_state(unit_connected_request.uid, true).await {
 
-                                        let mqtt_json_response=json!({"message_type":0,"error_stauts":0});
+                                        let mqtt_json_response=json!({"mty":"0","est":"0"});
 
                                         if let Ok(payload)=serde_json::to_vec(&mqtt_json_response) {
                                             let _=mqtt_client.publish(unit_subscribe_topic, QoS::AtLeastOnce, false, payload).await;
@@ -187,49 +186,52 @@ impl MessageHandler {
 
                                     }else{
 
-                                        error!("error occured with database while updating the unit connected state -> {}",unit_subscribe_topic);
-
-                                        let mqtt_json_response=json!({"message_type":0,"error_status":1,"error_type":2});
+                                        let mqtt_json_response=json!({"mty":"0","est":"1","ety":"1"});
 
                                         if let Ok(payload)=serde_json::to_vec(&mqtt_json_response) {
                                             let _=mqtt_client.publish(unit_subscribe_topic, QoS::AtLeastOnce, false, payload).await;
                                         }
-                                    }
-                                }else {
-                                    error!("connection request from invalid unit -> {}",unit_subscribe_topic);
 
-                                    let mqtt_json_response=json!({"message_type":0,"error_status":1,"error_type":3});
+                                        error!("error occured with database while updating the unit connected state -> {}",unit_subscribe_topic);
+                                    }
+                                } else {
+
+                                    let mqtt_json_response=json!({"mty":"0","est":"1","ety":"2"});
 
                                     if let Ok(payload)=serde_json::to_vec(&mqtt_json_response) {
                                         let _=mqtt_client.publish(unit_subscribe_topic, QoS::AtLeastOnce, false, payload).await;
                                     }
+
+                                    error!("connection request from invalid unit -> {}",unit_subscribe_topic);
                                 }
                             }else{
-                                error!("error occured with database while checking if unit is valid or not -> {}",unit_subscribe_topic);
 
-                                let mqtt_json_response=json!({"message_type":0,"error_status":1,"error_type":2});
+                                let mqtt_json_response=json!({"mty":"0","est":"1","ety":"1"});
 
                                 if let Ok(payload)=serde_json::to_vec(&mqtt_json_response) {
                                     let _=mqtt_client.publish(unit_subscribe_topic, QoS::AtLeastOnce, false, payload).await;
                                 }
+
+                                error!("error occured with database while checking if unit is valid or not -> {}",unit_subscribe_topic);
                             }
 
                         }else{
-                            error!("failed to parse the client message request to unit connected request -> {}",unit_subscribe_topic);
                             
-                            let mqtt_json_response=json!({"message_type":0,"error_status":1,"error_type":1});
+                            let mqtt_json_response=json!({"mty":"0","est":"1","ety":"0"});
 
                             if let Ok(payload)=serde_json::to_vec(&mqtt_json_response) {
                                 let _=mqtt_client.publish(unit_subscribe_topic, QoS::AtLeastOnce, false, payload).await;
                             }
+
+                            error!("failed to parse the client message request to unit connected request -> {}",unit_subscribe_topic);
                         }
                     },
 
                     "disconnected" => {
                         if let Ok(unit_disconnected_request)=serde_json::from_str::<UnitDisconnectedRequest>(&message) {
-                            if let Ok(is_unit_valid) = db.check_unit_is_valid(unit_disconnected_request.unit_id.clone()).await {
+                            if let Ok(is_unit_valid) = db.check_unit_is_valid(unit_disconnected_request.uid.clone()).await {
                                 if is_unit_valid {
-                                    if let Ok(_) =db.update_unit_state(unit_disconnected_request.unit_id, false).await {
+                                    if let Ok(_) =db.update_unit_state(unit_disconnected_request.uid, false).await {
                                         error!("unit disconnected from the mqtt broker -> {}",unit_subscribe_topic);
                                     }else{
                                         error!("error occured with the database while updating the unit disconnected state -> {}",unit_subscribe_topic);
