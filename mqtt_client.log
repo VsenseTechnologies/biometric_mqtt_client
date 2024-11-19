@@ -1,3 +1,37 @@
-24-10-03 15:53:07 : [ERROR] unit disconnected from the mqtt broker -> vs24sdm010
-24-10-03 15:53:31 : [ERROR] unit disconnected from the mqtt broker -> vs24sdm010
-24-10-03 15:54:19 : [ERROR] unit disconnected from the mqtt broker -> vs24sdm010
+
+24-11-08 00:14:18 : [ERROR] unit disconnected from the mqtt broker -> vs24al001
+24-11-08 00:17:54 : [ERROR] unit disconnected from the mqtt broker -> vs24al001
+24-11-08 00:20:24 : [ERROR] unit disconnected from the mqtt broker -> vs24al001
+24-11-08 00:23:18 : [ERROR] unit disconnected from the mqtt broker -> vs24al001
+24-11-08 00:24:36 : [ERROR] unit disconnected from the mqtt broker -> vs24al001
+24-11-08 00:25:18 : [ERROR] unit disconnected from the mqtt broker -> vs24al001
+24-11-08 00:33:48 : [ERROR] unit disconnected from the mqtt broker -> vs24al001
+24-11-08 05:49:54 : [ERROR] unit disconnected from the mqtt broker -> vs24al001
+24-11-08 05:52:18 : [ERROR] unit disconnected from the mqtt broker -> vs24al001
+24-11-08 06:10:06 : [ERROR] unit disconnected from the mqtt broker -> vs24al001
+24-11-19 06:03:29 : [ERROR] connection request from invalid unit -> vs24al002
+24-11-19 06:03:31 : [ERROR] connection request from invalid unit -> vs24al002
+24-11-19 06:03:42 : [ERROR] connection request from invalid unit -> vs24al002
+24-11-19 06:03:51 : [ERROR] disconnection request from the invalid unit -> vs24al002
+24-11-19 06:03:56 : [ERROR] connection request from invalid unit -> vs24al002
+24-11-19 06:03:57 : [ERROR] connection request from invalid unit -> vs24al002
+24-11-19 06:04:10 : [ERROR] connection request from invalid unit -> vs24al002
+24-11-19 06:04:11 : [ERROR] connection request from invalid unit -> vs24al002
+24-11-19 06:06:22 : [ERROR] connection request from invalid unit -> vs24al002
+24-11-19 06:06:23 : [ERROR] connection request from invalid unit -> vs24al002
+24-11-19 06:06:36 : [ERROR] connection request from invalid unit -> vs24al002
+24-11-19 06:06:37 : [ERROR] connection request from invalid unit -> vs24al002
+24-11-19 06:06:45 : [ERROR] disconnection request from the invalid unit -> vs24al002
+24-11-19 06:06:50 : [ERROR] connection request from invalid unit -> vs24al002
+24-11-19 06:06:51 : [ERROR] connection request from invalid unit -> vs24al002
+24-11-19 06:07:04 : [ERROR] connection request from invalid unit -> vs24al002
+24-11-19 06:07:05 : [ERROR] connection request from invalid unit -> vs24al002
+24-11-19 06:07:19 : [ERROR] connection request from invalid unit -> vs24al002
+24-11-19 06:07:20 : [ERROR] connection request from invalid unit -> vs24al002
+24-11-19 06:07:33 : [ERROR] connection request from invalid unit -> vs24al002
+24-11-19 06:07:34 : [ERROR] connection request from invalid unit -> vs24al002
+24-11-19 06:07:47 : [ERROR] connection request from invalid unit -> vs24al002
+24-11-19 06:07:48 : [ERROR] connection request from invalid unit -> vs24al002
+24-11-19 06:08:02 : [ERROR] connection request from invalid unit -> vs24al002
+24-11-19 06:08:02 : [ERROR] connection request from invalid unit -> vs24al002
+24-11-19 06:08:10 : [ERROR] disconnection request from the invalid unit -> vs24al002

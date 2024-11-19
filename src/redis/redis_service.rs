@@ -1,30 +1,32 @@
-use redis::{Client,RedisError};
 use redis::aio::MultiplexedConnection;
+use redis::{Client, RedisError};
 use std::env;
 use tokio::sync::Mutex;
 
 #[derive(Debug)]
 pub struct RedisService {
-    pub attendence_list_name:String,
-    pub insert_json_name:String,
-    pub delete_json_name:String,
-    pub client:Mutex<MultiplexedConnection>
+    pub attendence_list_name: String,
+    pub insert_json_name: String,
+    pub delete_json_name: String,
+    pub client: Mutex<MultiplexedConnection>,
 }
 
 impl RedisService {
-    pub async fn new() -> Result<Self,RedisError> {
-        
-        let redis_uri=env::var("REDIS_URI").expect("failed to read the REDIS_URI env variable");
+    pub async fn new() -> Result<Self, RedisError> {
+        let redis_uri = env::var("REDIS_URI").expect("failed to read the REDIS_URI env variable");
 
-        let attendence_list_name=env::var("REDIS_ATTENDENCE_LIST_NAME").expect("failed to read the REDIS_ATTENDENCE_LIST_NAME");
+        let attendence_list_name = env::var("REDIS_ATTENDENCE_LIST_NAME")
+            .expect("failed to read the REDIS_ATTENDENCE_LIST_NAME");
 
-        let insert_json_name=env::var("REDIS_INSERT_JSON_NAME").expect("failed to read the REDIS_INSERT_JSON_NAME");
+        let insert_json_name =
+            env::var("REDIS_INSERT_JSON_NAME").expect("failed to read the REDIS_INSERT_JSON_NAME");
 
-        let delete_json_name=env::var("REDIS_DELETE_JSON_NAME").expect("failed to read the REDIS_DELETE_JSON_NAME");
+        let delete_json_name =
+            env::var("REDIS_DELETE_JSON_NAME").expect("failed to read the REDIS_DELETE_JSON_NAME");
 
-        let client=Client::open(redis_uri).expect("invalid redis uri");
+        let client = Client::open(redis_uri).expect("invalid redis uri");
 
-        let mut connecton=client.get_multiplexed_async_connection().await?;
+        let mut connecton = client.get_multiplexed_async_connection().await?;
 
         redis::cmd("PING").exec_async(&mut connecton).await?;
 
@@ -34,88 +36,136 @@ impl RedisService {
             attendence_list_name,
             insert_json_name,
             delete_json_name,
-            client:Mutex::new(connecton)
+            client: Mutex::new(connecton),
         })
     }
-    
-    pub async fn get_user_from_deletes(self:&Self,unit_id:String)-> Result<String, redis::RedisError>{
 
-        let json_name=&self.delete_json_name;
-        let command="JSON.GET";
-        let json_arr_path=format!("$.{}[0]",unit_id.to_uppercase());
-        let arguements=[json_name,&json_arr_path];
+    pub async fn get_user_from_deletes(
+        self: &Self,
+        unit_id: String,
+    ) -> Result<String, redis::RedisError> {
+        let json_name = &self.delete_json_name;
+        let command = "JSON.GET";
+        let json_arr_path = format!("$.{}[0]", unit_id.to_uppercase());
+        let arguements = [json_name, &json_arr_path];
 
-        let mut redis_client=self.client.lock().await;
+        let mut redis_client = self.client.lock().await;
 
-        let json_response=redis::cmd(command).arg(&arguements).query_async::<String>(&mut *redis_client).await?;
+        let json_response = redis::cmd(command)
+            .arg(&arguements)
+            .query_async::<String>(&mut *redis_client)
+            .await?;
 
-        Ok(json_response)        
+        Ok(json_response)
     }
 
-    pub async fn get_user_from_inserts(self:&Self,unit_id:String) -> Result<String,redis::RedisError> {
-        
-        let json_name=&self.insert_json_name;
+    pub async fn get_user_from_inserts(
+        self: &Self,
+        unit_id: String,
+    ) -> Result<String, redis::RedisError> {
+        let json_name = &self.insert_json_name;
 
-        let command="JSON.GET";
-        
-        let json_arr_path=format!("$.{}[0]",unit_id.to_uppercase());
+        let command = "JSON.GET";
 
-        let arguements=[json_name,&json_arr_path];
+        let json_arr_path = format!("$.{}[0]", unit_id.to_uppercase());
 
-        let mut redis_client=self.client.lock().await;
+        let arguements = [json_name, &json_arr_path];
 
-        let json_response=redis::cmd(command).arg(&arguements).query_async::<String>(&mut *redis_client).await?;
+        let mut redis_client = self.client.lock().await;
 
-        Ok(json_response)    
+        let json_response = redis::cmd(command)
+            .arg(&arguements)
+            .query_async::<String>(&mut *redis_client)
+            .await?;
+
+        Ok(json_response)
     }
 
-    pub async fn remove_user_from_inserts(self:&Self,unit_id:String) -> Result<(),redis::RedisError> {
-        
-        let json_name=&self.insert_json_name;
+    pub async fn update_user_fingerprint_data_in_inserts(
+        self: &Self,
+        unit_id: String,
+        fingerprint_data: &str,
+    ) -> Result<(), redis::RedisError> {
+        let json_name = &self.insert_json_name;
 
-        let command="JSON.DEL";
+        let command = "JSON.SET";
 
-        let json_arr_path=format!("$.{}[0]",unit_id.to_uppercase());
+        let json_arr_path = format!("$.{}[0].fingerprint_data", unit_id.to_uppercase());
 
-        let arguements=[json_name,&json_arr_path];
+        let arguements = [
+            json_name,
+            &json_arr_path,
+            &format!("\"{}\"", fingerprint_data),
+        ];
 
-        let mut redis_client=self.client.lock().await;
+        let mut redis_client = self.client.lock().await;
 
-        redis::cmd(&command).arg(&arguements).exec_async(&mut *redis_client).await?;
+        redis::cmd(&command)
+            .arg(&arguements)
+            .exec_async(&mut *redis_client)
+            .await?;
 
         Ok(())
     }
 
-    pub async fn remove_user_from_deletes(self:&Self,unit_id:String) -> Result<(),redis::RedisError> {
-        
-        let json_name=&self.delete_json_name;
+    pub async fn remove_user_from_inserts(
+        self: &Self,
+        unit_id: String,
+    ) -> Result<(), redis::RedisError> {
+        let json_name = &self.insert_json_name;
 
-        let command="JSON.DEL";
+        let command = "JSON.DEL";
 
-        let json_arr_path=format!("$.{}[0]",unit_id.to_uppercase());
+        let json_arr_path = format!("$.{}[0]", unit_id.to_uppercase());
 
-        let arguements=[json_name,&json_arr_path];
+        let arguements = [json_name, &json_arr_path];
 
-        let mut redis_client=self.client.lock().await;
+        let mut redis_client = self.client.lock().await;
 
-        redis::cmd(command).arg(&arguements).exec_async(&mut *redis_client).await?;
-
-        Ok(())
-    }
-
-    pub async fn insert_attendence_log(self:&Self,log:String)->Result<(),RedisError> {
-
-        let list_name=&self.attendence_list_name;
-
-        let command="LPUSH";
-
-        let arguments=[list_name,&log];
-
-        let mut redis_client=self.client.lock().await;
-
-        redis::cmd(command).arg(&arguments).exec_async(&mut *redis_client).await?;
+        redis::cmd(&command)
+            .arg(&arguements)
+            .exec_async(&mut *redis_client)
+            .await?;
 
         Ok(())
     }
 
+    pub async fn remove_user_from_deletes(
+        self: &Self,
+        unit_id: String,
+    ) -> Result<(), redis::RedisError> {
+        let json_name = &self.delete_json_name;
+
+        let command = "JSON.DEL";
+
+        let json_arr_path = format!("$.{}[0]", unit_id.to_uppercase());
+
+        let arguements = [json_name, &json_arr_path];
+
+        let mut redis_client = self.client.lock().await;
+
+        redis::cmd(command)
+            .arg(&arguements)
+            .exec_async(&mut *redis_client)
+            .await?;
+
+        Ok(())
+    }
+
+    pub async fn insert_attendence_log(self: &Self, log: String) -> Result<(), RedisError> {
+        let list_name = &self.attendence_list_name;
+
+        let command = "LPUSH";
+
+        let arguments = [list_name, &log];
+
+        let mut redis_client = self.client.lock().await;
+
+        redis::cmd(command)
+            .arg(&arguments)
+            .exec_async(&mut *redis_client)
+            .await?;
+
+        Ok(())
+    }
 }
