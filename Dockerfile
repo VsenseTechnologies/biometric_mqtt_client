@@ -20,7 +20,7 @@ COPY --from=planner /usr/local/cargo /usr/local/cargo
 RUN cargo chef cook --release --recipe-path recipe.json
 
 
-#stage 3 building the source code 
+#stage 3 building the source code
 
 FROM rust:slim-bullseye AS final_builder
 
@@ -34,7 +34,7 @@ RUN cargo build --release
 
 #stage 4 setting up the final runtime for the application
 
-FROM debian:bullseye-slim 
+FROM debian:bullseye-slim
 
 WORKDIR /app
 
@@ -54,6 +54,6 @@ ENV REDIS_INSERT_JSON_NAME=inserts
 
 ENV REDIS_DELETE_JSON_NAME=deletes
 
-COPY --from=final_builder /app/target/release/vsense_biometric_mqtt_client .
+COPY --from=final_builder /app/target/release/vsense_biometric_mqtt_client ./main
 
-CMD ["./vsense_biometric_mqtt_client"]
+CMD ["./main"]
