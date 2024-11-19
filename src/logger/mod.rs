@@ -1,10 +1,9 @@
-
-use fern::Dispatch;
 use chrono::Local;
+use fern::Dispatch;
 
-pub fn init_logger() -> Result<(),fern::InitError> {
+pub fn init_logger() -> Result<(), fern::InitError> {
     Dispatch::new()
-        .format(|out,message,record| {
+        .format(|out, message, record| {
             out.finish(format_args!(
                 "{} : [{}] {}",
                 Local::now().format("%y-%m-%d %H:%M:%S"),
@@ -13,7 +12,7 @@ pub fn init_logger() -> Result<(),fern::InitError> {
             ))
         })
         .level(log::LevelFilter::Error)
-        .chain(fern::log_file("mqtt_client.log")?)
+        .chain(fern::log_file("app.log")?)
         .apply()?;
 
     Ok(())
